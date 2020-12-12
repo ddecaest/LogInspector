@@ -1,0 +1,21 @@
+plugins {
+    id 'groovy'
+    id 'java'
+}
+
+group 'com.loginspector'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.15
+targetCompatibility = 1.15
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':application:core')
+
+    testCompile 'org.codehaus.groovy:groovy-all:3.0.7'
+    testCompile 'org.spockframework:spock-core:2.0-groovy-3.0'
+}
