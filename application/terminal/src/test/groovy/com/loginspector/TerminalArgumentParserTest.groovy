@@ -13,7 +13,7 @@ class TerminalArgumentParserTest extends Specification {
         exception.message == 'Expected exactly two arguments: the path to the log file to inspect and the path to the output file!'
     }
 
-    def handlesInvalidArgs() {
+    def handlesInvalidNumberOfArguments() {
         when:
         TerminalArgumentParser.parse(illegalArgs)
 
@@ -23,6 +23,18 @@ class TerminalArgumentParserTest extends Specification {
 
         where:
         illegalArgs << [(String[]) [], (String[]) ["a"], (String[]) ["a", "b", "c"]]
+    }
+
+    def handlesIncorrectArguments() {
+        when:
+        TerminalArgumentParser.parse((String[]) [arg1, arg2])
+
+        then:
+        def exception = thrown(IllegalArgumentException)
+        exception.message == 'Expected exactly two arguments: the path to the log file to inspect and the path to the output file!'
+
+        where:
+        [arg1, arg2] << [["", " ", null], ["", " ", null]].combinations()
     }
 
     def handlesValidArgs() {

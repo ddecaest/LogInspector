@@ -1,14 +1,28 @@
 package com.loginspector;
 
+import java.util.Objects;
+
 public abstract class TerminalArgumentParser {
 
     public static Arguments parse(String[] args) {
         if(args == null || args.length != 2) {
-            throw new IllegalArgumentException("Expected exactly two arguments: the path to the log file to inspect and the path to the output file!");
+            invalidArgsError();
         }
-        final String pathToLogFile = args[0];
-        final String pathToOutputFile = args[1];
+        final String pathToLogFile = Objects.toString(args[0], "").trim();
+        final String pathToOutputFile = Objects.toString(args[1], "").trim();
+
+        if(pathToLogFile.isEmpty()) {
+            invalidArgsError();
+        }
+        if(pathToOutputFile.isEmpty()) {
+            invalidArgsError();
+        }
+
         return new Arguments(pathToOutputFile, pathToLogFile);
+    }
+
+    private static void invalidArgsError() {
+        throw new IllegalArgumentException("Expected exactly two arguments: the path to the log file to inspect and the path to the output file!");
     }
 
 
