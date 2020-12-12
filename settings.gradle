@@ -1,0 +1,4 @@
+rootProject.name = 'log-inspector'
+
+include 'application:core'
+include 'application:terminal'
