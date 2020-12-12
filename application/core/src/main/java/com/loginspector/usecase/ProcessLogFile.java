@@ -5,7 +5,7 @@ import com.loginspector.reader.LogFileReader;
 import java.io.InputStream;
 import java.util.function.Function;
 
-public class ProcessLogFile {
+public abstract class ProcessLogFile {
 
     public static InputStream execute(InputStream inputStream) {
         ProcessLogFileFlow useCaseFlow = new ProcessLogFileFlow(LogFileReader::new);
