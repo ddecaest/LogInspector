@@ -2,7 +2,7 @@ package com.loginspector;
 
 import java.util.Objects;
 
-public abstract class TerminalArgumentParser {
+public abstract class ArgumentParser {
 
     public static Arguments parse(String[] args) {
         if(args == null || args.length != 2) {

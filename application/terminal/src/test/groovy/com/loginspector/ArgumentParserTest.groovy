@@ -2,11 +2,11 @@ package com.loginspector
 
 import spock.lang.Specification
 
-class TerminalArgumentParserTest extends Specification {
+class ArgumentParserTest extends Specification {
 
     def handlesNull() {
         when:
-        TerminalArgumentParser.parse(null)
+        ArgumentParser.parse(null)
 
         then:
         def exception = thrown(IllegalArgumentException)
@@ -15,7 +15,7 @@ class TerminalArgumentParserTest extends Specification {
 
     def handlesInvalidNumberOfArguments() {
         when:
-        TerminalArgumentParser.parse(illegalArgs)
+        ArgumentParser.parse(illegalArgs)
 
         then:
         def exception = thrown(IllegalArgumentException)
@@ -27,7 +27,7 @@ class TerminalArgumentParserTest extends Specification {
 
     def handlesIncorrectArguments() {
         when:
-        TerminalArgumentParser.parse((String[]) [arg1, arg2])
+        ArgumentParser.parse((String[]) [arg1, arg2])
 
         then:
         def exception = thrown(IllegalArgumentException)
@@ -42,7 +42,7 @@ class TerminalArgumentParserTest extends Specification {
         def args = (String[])['a', 'b']
 
         when:
-        def arguments = TerminalArgumentParser.parse(args)
+        def arguments = ArgumentParser.parse(args)
 
         then:
         arguments.pathToLogFile == 'a'
