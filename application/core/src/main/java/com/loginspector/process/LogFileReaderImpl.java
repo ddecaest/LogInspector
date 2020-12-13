@@ -44,7 +44,7 @@ class LogFileReaderImpl implements LogFileReader {
     /**
      * Reads the next available line and returns the result as a parsed LogLine. <br>
      * If no more lines are available or a unrecoverable error occurs, return Optional.empty() <br>
-     * If a line is available but it is malformed, a LogLine is returned that only contains an errorMessage.
+     * If a line is available but it is malformed, a LogLine is returned that only contains a message.
      */
     public Optional<LogLine> readLine() {
         currentLine++;
@@ -80,9 +80,9 @@ class LogFileReaderImpl implements LogFileReader {
         String thread = matcher.group(2);
         LogLevel logLevel = parseLogLevel(matcher.group(3));
         String className = matcher.group(4);
-        String errorMessage = matcher.group(5);
+        String message = matcher.group(5);
 
-        return Optional.of(new LogLine(localDateTime, errorMessage, logLevel, className, thread));
+        return Optional.of(LogLine.structuredLogLine(localDateTime, message, logLevel, className, thread));
     }
 
     private LocalDateTime parseLocalDateTime(String rawLocalDateTime) {

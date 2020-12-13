@@ -35,6 +35,6 @@ class ProcessLogFileTest extends Specification {
     }
 
     private static LogLine generateLogLine() {
-        return new LogLine(null, UUID.toString(), null, null, null)
+        return LogLine.structuredLogLine(null, UUID.toString(), null, null, null)
     }
 }

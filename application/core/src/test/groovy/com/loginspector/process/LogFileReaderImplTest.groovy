@@ -24,7 +24,7 @@ class LogFileReaderImplTest extends Specification {
         firstLine.thread == "WorkerThread-0"
         firstLine.loglevel == LogLevel.DEBUG
         firstLine.className == "DmsObjectDeterminator"
-        firstLine.errorMessage == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
+        firstLine.message == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
 
         when:
         def secondLine = logFile.readLine()
@@ -50,7 +50,7 @@ class LogFileReaderImplTest extends Specification {
         firstLine.thread == "WorkerThread-0"
         firstLine.loglevel == LogLevel.DEBUG
         firstLine.className == "DmsObjectDeterminator"
-        firstLine.errorMessage == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
+        firstLine.message == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
 
         when:
         def secondLine = logFile.readLine()
@@ -76,7 +76,7 @@ class LogFileReaderImplTest extends Specification {
         firstLine.thread == "WorkerThread-0"
         firstLine.loglevel == LogLevel.UNKNOWN
         firstLine.className == "DmsObjectDeterminator"
-        firstLine.errorMessage == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
+        firstLine.message == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
 
         when:
         def secondLine = logFile.readLine()
