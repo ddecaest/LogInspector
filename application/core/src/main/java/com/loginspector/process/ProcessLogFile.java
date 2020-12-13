@@ -1,6 +1,4 @@
-package com.loginspector.usecase;
-
-import com.loginspector.reader.LogFileReader;
+package com.loginspector.process;
 
 import java.io.InputStream;
 import java.util.function.Function;

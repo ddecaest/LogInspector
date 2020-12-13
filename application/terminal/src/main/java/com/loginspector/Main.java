@@ -1,7 +1,7 @@
 package com.loginspector;
 
 import com.loginspector.ArgumentParser.Arguments;
-import com.loginspector.usecase.ProcessLogFile;
+import com.loginspector.process.ProcessLogFile;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

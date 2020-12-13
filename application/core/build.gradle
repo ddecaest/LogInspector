@@ -14,6 +14,9 @@ repositories {
 }
 
 dependencies {
-    testCompile 'org.codehaus.groovy:groovy-all:3.0.7'
-    testCompile 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testCompile(
+            'junit:junit:4.12',
+            'org.codehaus.groovy:groovy-all:2.4.11',
+            'org.spockframework:spock-core:1.1-groovy-2.4'
+    )
 }
