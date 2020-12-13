@@ -12,6 +12,11 @@ class LoggerLog4JImpl implements Logger {
         delegate.error(message);
     }
 
+    @Override
+    public void error(String message, Exception e) {
+        delegate.error(message, e);
+    }
+
     public void error(String message, Object... params) {
         delegate.error(message, params);
     }

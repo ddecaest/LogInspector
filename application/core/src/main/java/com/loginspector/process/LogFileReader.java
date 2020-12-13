@@ -41,10 +41,21 @@ class LogFileReader {
         this.currentLine = 0;
     }
 
-    public Optional<LogLine> readLine() throws IOException {
+    /**
+     * Reads the next available line and returns the result as a parsed LogLine. <br>
+     * If no more lines are available or a unrecoverable error occurs, return Optional.empty() <br>
+     * If a line is available but it is malformed, a LogLine is returned that only contains an errorMessage.
+     */
+    public Optional<LogLine> readLine() {
         currentLine++;
 
-        String line = reader.readLine();
+        String line = null;
+        try {
+            line = reader.readLine();
+        } catch (IOException e) {
+            logger.warn("An error occurred while reading in a log line.", e);
+            return Optional.empty();
+        }
         if(line == null) {
             return Optional.empty();
         }
