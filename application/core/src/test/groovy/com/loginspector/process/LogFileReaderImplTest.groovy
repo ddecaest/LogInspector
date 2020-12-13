@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 import java.time.LocalDateTime
 
-class LogFileReaderTest extends Specification {
+class LogFileReaderImplTest extends Specification {
 
     Logger loggerUsed = Mock(Logger)
 
@@ -86,9 +86,9 @@ class LogFileReaderTest extends Specification {
     }
 
 
-    private LogFileReader createReaderFromContent(String content) {
+    private LogFileReaderImpl createReaderFromContent(String content) {
         def targetStream = new ByteArrayInputStream(content.getBytes())
-        return new LogFileReader(targetStream, { clazz -> loggerUsed })
+        return new LogFileReaderImpl(targetStream, { clazz -> loggerUsed })
     }
 
     private static int padNanos(int nanos) {

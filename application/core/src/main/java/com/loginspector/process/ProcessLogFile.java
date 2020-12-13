@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 public abstract class ProcessLogFile {
 
-    public static final ProcessLogFileFlow USE_CASE_FLOW = new ProcessLogFileFlow(
-            is -> new LogFileReader(is, LoggerFactory::createLogger),
+    private static final ProcessLogFileFlow USE_CASE_FLOW = new ProcessLogFileFlow(
+            is -> new LogFileReaderImpl(is, LoggerFactory::createLogger),
             new GatherStatisticsStrategyImpl()
     );
 
@@ -18,7 +18,7 @@ public abstract class ProcessLogFile {
     }
 
 
-    private static class ProcessLogFileFlow {
+    static class ProcessLogFileFlow {
 
         private final Function<InputStream, LogFileReader> createLogFileReader;
         private final GatherStatisticsStrategy gatherStatisticsStrategy;
@@ -26,8 +26,8 @@ public abstract class ProcessLogFile {
         ProcessLogFileFlow(Function<InputStream, LogFileReader> createLogFileReader,
                            GatherStatisticsStrategy gatherStatisticsStrategy
         ) {
-            this.createLogFileReader = createLogFileReader;
             this.gatherStatisticsStrategy = gatherStatisticsStrategy;
+            this.createLogFileReader = createLogFileReader;
         }
 
         public InputStream execute(InputStream inputStream) {
