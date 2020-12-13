@@ -1,12 +1,16 @@
 package com.loginspector.process;
 
+import com.loginspector.logging.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,12 +32,18 @@ class LogFileReader {
     }
 
     private final BufferedReader reader;
+    private final Logger logger;
+    private int currentLine;
 
-    public LogFileReader(InputStream streamToLogFile) {
-        reader = new BufferedReader(new InputStreamReader(streamToLogFile));
+    public LogFileReader(InputStream streamToLogFile, Function<Class, Logger> createLogger) {
+        this.reader = new BufferedReader(new InputStreamReader(streamToLogFile));
+        this.logger = createLogger.apply(this.getClass());
+        this.currentLine = 0;
     }
 
     public Optional<LogLine> readLine() throws IOException {
+        currentLine++;
+
         String line = reader.readLine();
         if(line == null) {
             return Optional.empty();
@@ -55,20 +65,29 @@ class LogFileReader {
     }
 
     private Optional<LogLine> handleStandardLogLine(Matcher matcher) {
-        LocalDateTime zonedDateTime = LocalDateTime.parse(matcher.group(1), DATE_TIME_FORMATTER);
+        LocalDateTime localDateTime = parseLocalDateTime(matcher.group(1));
         String thread = matcher.group(2);
         LogLevel logLevel = parseLogLevel(matcher.group(3));
         String className = matcher.group(4);
         String errorMessage = matcher.group(5);
 
-        return Optional.of(new LogLine(zonedDateTime, errorMessage, logLevel, className, thread));
+        return Optional.of(new LogLine(localDateTime, errorMessage, logLevel, className, thread));
+    }
+
+    private LocalDateTime parseLocalDateTime(String rawLocalDateTime) {
+        try {
+            return LocalDateTime.parse(rawLocalDateTime, DATE_TIME_FORMATTER);
+        } catch(DateTimeParseException e) {
+            logger.warn("Could not parse the date on line %s, %s is not a valid date!", String.valueOf(currentLine), rawLocalDateTime);
+            return null;
+        }
     }
 
     private LogLevel parseLogLevel(String rawLogLevel) {
         try {
             return LogLevel.valueOf(rawLogLevel);
         } catch(IllegalArgumentException e) {
-            // TODO log warning
+            logger.warn("Could not parse the log level on line %s, %s is not a valid log level!", String.valueOf(currentLine), rawLogLevel);
             return LogLevel.UNKNOWN;
         }
     }
