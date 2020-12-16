@@ -9,7 +9,6 @@ import com.loginspector.statistics.RenderStatistics.RenderInfo;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

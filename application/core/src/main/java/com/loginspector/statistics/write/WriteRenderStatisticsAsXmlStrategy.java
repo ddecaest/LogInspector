@@ -15,7 +15,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -106,9 +105,5 @@ public class WriteRenderStatisticsAsXmlStrategy implements WriteStatisticsStrate
 
     private Element createNodeWithIntValue(Document dom, String nodeName, int value) {
         return createNodeWithTextValue(dom, nodeName, String.valueOf(value));
-    }
-
-    private ByteArrayInputStream emptyResult() {
-        return new ByteArrayInputStream(new byte[0]);
     }
 }

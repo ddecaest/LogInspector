@@ -8,21 +8,9 @@ class LoggerLog4JImpl implements Logger {
         this.delegate = delegate;
     }
 
-    public void error(String message) {
-        delegate.error(message);
-    }
-
     @Override
     public void error(String message, Exception e) {
         delegate.error(message, e);
-    }
-
-    public void error(String message, Object... params) {
-        delegate.error(message, params);
-    }
-
-    public void warn(String message) {
-        delegate.warn(message);
     }
 
     @Override
@@ -30,6 +18,7 @@ class LoggerLog4JImpl implements Logger {
         delegate.info(message, params);
     }
 
+    @Override
     public void warn(String message, Object... params) {
         delegate.warn(message, params);
     }
