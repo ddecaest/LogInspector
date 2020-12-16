@@ -2,7 +2,6 @@ package com.loginspector;
 
 import com.loginspector.ArgumentParser.Arguments;
 import com.loginspector.usecase.ProcessLogFile;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 
@@ -14,35 +13,23 @@ class Main {
     }
 
     public static void execute(ArgumentParser.Arguments arguments) {
-
-        FileOutputStream fileOutputStream = new FileOutputStream(arguments.pathToOutputFile);
-
-        try (InputStream in = new FileInputStream(arguments.pathToLogFile)) {
-            ProcessLogFile.execute(in, fileOutputStream);
-//            writeResult(result, arguments.pathToOutputFile);
-        }
-        catch (IOException e) {
-            handleReadingError(e);
-        }
-    }
-
-    private static void handleReadingError(IOException e) {
-        System.err.println("ERROR: an exception occurred while reading in the input file.");
-        e.printStackTrace();
-        System.exit(1);
-    }
-
-    private static void writeResult(InputStream result, String pathToOutputFile) {
-        File targetFile = new File(pathToOutputFile);
-        try {
-            FileUtils.copyInputStreamToFile(result, targetFile);
+        try (OutputStream output = createStreamToOutputFile(arguments);
+             InputStream in = new FileInputStream(arguments.pathToLogFile)
+        ) {
+            ProcessLogFile.execute(in, output);
         } catch (IOException e) {
-            handleWritingError(e);
+            handleIOException(e);
         }
     }
 
-    private static void handleWritingError(IOException e) {
-        System.err.println("ERROR: an exception occurred while writing the result file.");
+    private static OutputStream createStreamToOutputFile(Arguments arguments) throws IOException {
+        File outputFile = new File(arguments.pathToOutputFile);
+        outputFile.createNewFile();
+        return new FileOutputStream(outputFile, false);
+    }
+
+    private static void handleIOException(IOException e) {
+        System.err.println("ERROR: an exception occurred while setting up the input and output files.");
         e.printStackTrace();
         System.exit(1);
     }
