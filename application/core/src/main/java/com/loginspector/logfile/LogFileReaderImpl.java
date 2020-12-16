@@ -72,7 +72,7 @@ public class LogFileReaderImpl implements LogFileReader {
     }
 
     private Optional<LogLine> handleUnstructuredLogLine(String line, int lineNumber) {
-        return Optional.of(LogLine.unstructuredLogLine(line, lineNumber));
+        return Optional.of(LogLine.createUnstructuredLogLine(line, lineNumber));
     }
 
     private Optional<LogLine> handleStandardLogLine(Matcher matcher, int lineNumber) {
@@ -82,7 +82,7 @@ public class LogFileReaderImpl implements LogFileReader {
         String className = matcher.group(4);
         String message = matcher.group(5);
 
-        return Optional.of(LogLine.structuredLogLine(localDateTime, message, logLevel, className, thread, lineNumber));
+        return Optional.of(LogLine.createStructuredLogLine(localDateTime, message, logLevel, className, thread, lineNumber));
     }
 
     private LocalDateTime parseLocalDateTime(String rawLocalDateTime) {

@@ -40,6 +40,6 @@ class ProcessLogFileTest extends Specification {
     }
 
     private static LogLine generateLogLine() {
-        return LogLine.unstructuredLogLine(UUID.randomUUID().toString(), -1)
+        return LogLine.createUnstructuredLogLine(UUID.randomUUID().toString(), -1)
     }
 }

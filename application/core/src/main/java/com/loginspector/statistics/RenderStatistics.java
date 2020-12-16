@@ -1,12 +1,11 @@
 package com.loginspector.statistics;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class RenderStatistics {
 
+    public static final String UNKNOWN_DATA = "UNKNOWN";
     public final Collection<RenderInfo> renderInfos;
 
     public RenderStatistics(Collection<RenderInfo> renderInfos) {
@@ -64,11 +63,19 @@ public class RenderStatistics {
         }
 
         public static RenderInfo create(String documentId, String page, LocalDateTime startRenderTimestamp, String renderUid) {
-            return new RenderInfo(List.of(startRenderTimestamp), renderUid, documentId, page);
+            List<LocalDateTime> startRenderTimestamps = new ArrayList<>();
+            startRenderTimestamps.add(startRenderTimestamp);
+            return new RenderInfo(startRenderTimestamps, renderUid, documentId, page);
         }
 
         public static RenderInfo createWithoutStartRenderingInfo(String renderUid) {
-            return new RenderInfo(List.of(), renderUid, "UNKNOWN", "UNKNOWN");
+            return new RenderInfo(new ArrayList<>(), renderUid, UNKNOWN_DATA, "UNKNOWN");
+        }
+
+        public static RenderInfo createWithOnlyStartRenderingInfo(String documentId, String page, LocalDateTime startRenderTimestamp) {
+            List<LocalDateTime> startRenderTimestamps = new ArrayList<>();
+            startRenderTimestamps.add(startRenderTimestamp);
+            return new RenderInfo(startRenderTimestamps, "UNKNOWN", documentId, page);
         }
 
         public void addStartRenderTimestamp(LocalDateTime timestamp) {

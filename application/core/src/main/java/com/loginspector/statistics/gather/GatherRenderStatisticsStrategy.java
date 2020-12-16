@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
 
 public class GatherRenderStatisticsStrategy implements GatherStatisticsStrategy<RenderStatistics> {
 
-    private static final Pattern START_RENDERING_MESSAGE_PATTERN = Pattern.compile("Executing request startRendering with arguments \\[(.*?),(.*?)]]");
+    private static final Pattern START_RENDERING_MESSAGE_PATTERN = Pattern.compile("Executing request startRendering with arguments \\[(.*?),(.*?)]");
     private static final Pattern RENDERING_UID_RETURNED_PATTERN = Pattern.compile("Service startRendering returned\s(.*)");
-    private static final Pattern GET_RENDERING_PATTERN = Pattern.compile("Executing request getRendering with arguments [(.*?)]");
+    private static final Pattern GET_RENDERING_PATTERN = Pattern.compile("Executing request getRendering with arguments \\[(.*?)]");
 
     private final List<PendingStartRenderRequest> pendingRequests = new ArrayList<>();
     private final Map<String, RenderInfo> renderUidOnInfo = new HashMap<>();
@@ -39,8 +39,8 @@ public class GatherRenderStatisticsStrategy implements GatherStatisticsStrategy<
 
         Matcher startRenderingMatcher = START_RENDERING_MESSAGE_PATTERN.matcher(logLine.message);
         if (startRenderingMatcher.find()) {
-            final String documentId = startRenderingMatcher.group(1);
-            final String page = startRenderingMatcher.group(2);
+            final String documentId = startRenderingMatcher.group(1).trim();
+            final String page = startRenderingMatcher.group(2).trim();
             handleStartRenderingRequest(logLine, documentId, page);
             return;
         }
@@ -53,14 +53,14 @@ public class GatherRenderStatisticsStrategy implements GatherStatisticsStrategy<
         }
 
         Matcher getRenderingMatcher = GET_RENDERING_PATTERN.matcher(logLine.message);
-        if (renderingUidReturnedMatcher.find()) {
-            final String renderUid = getRenderingMatcher.group(1);
+        if (getRenderingMatcher.find()) {
+            final String renderUid = getRenderingMatcher.group(1).trim();
             handleGetRendering(logLine.timestamp, renderUid);
         }
     }
 
     private void handleStartRenderingRequest(LogLine logLine, String documentId, String page) {
-        PendingStartRenderRequest request = new PendingStartRenderRequest(logLine.thread, documentId, page, logLine.timestamp);
+        PendingStartRenderRequest request = new PendingStartRenderRequest(documentId, logLine.thread, page, logLine.timestamp);
         pendingRequests.add(request);
     }
 
@@ -82,11 +82,10 @@ public class GatherRenderStatisticsStrategy implements GatherStatisticsStrategy<
     }
 
     private Optional<PendingStartRenderRequest> popMatchingPendingRequest(String thread) {
-        Predicate<PendingStartRenderRequest> findMatchingPendingRequest = it -> Objects.equals(it.thread, thread);
         var matchingPendingRequest = pendingRequests.stream()
-                .filter(findMatchingPendingRequest)
+                .filter(it -> Objects.equals(it.thread, thread))
                 .findAny();
-        pendingRequests.removeIf(findMatchingPendingRequest);
+        pendingRequests.removeIf(it -> Objects.equals(it.thread, thread));
         return matchingPendingRequest;
     }
 
@@ -95,12 +94,19 @@ public class GatherRenderStatisticsStrategy implements GatherStatisticsStrategy<
         if(renderInfo != null) {
             renderInfo.addGetRenderTimestamp(getRenderTimestamp);
         } else {
-            renderUidOnInfo.put(renderUid, RenderInfo.createWithoutStartRenderingInfo(renderUid));
+            RenderInfo newRenderInfo = RenderInfo.createWithoutStartRenderingInfo(renderUid);
+            newRenderInfo.addGetRenderTimestamp(getRenderTimestamp);
+            renderUidOnInfo.put(renderUid, newRenderInfo);
         }
     }
 
     @Override
     public RenderStatistics getResult() {
-        return new RenderStatistics(renderUidOnInfo.values());
+        Collection<RenderInfo> values = new ArrayList<>(renderUidOnInfo.values());
+        pendingRequests.stream()
+                .map(pendingRequest -> RenderInfo.createWithOnlyStartRenderingInfo(pendingRequest.documentId, pendingRequest.page, pendingRequest.timestamp))
+                .forEach(values::add);
+
+        return new RenderStatistics(values);
     }
 }

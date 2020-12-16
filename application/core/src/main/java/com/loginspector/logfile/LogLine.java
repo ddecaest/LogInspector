@@ -34,17 +34,17 @@ public class LogLine {
         this.lineNumber = lineNumber;
     }
 
-    public static LogLine structuredLogLine(LocalDateTime timestamp,
-                                            String message,
-                                            LogLevel loglevel,
-                                            String className,
-                                            String thread,
-                                            int lineNumber
+    public static LogLine createStructuredLogLine(LocalDateTime timestamp,
+                                                  String message,
+                                                  LogLevel loglevel,
+                                                  String className,
+                                                  String thread,
+                                                  int lineNumber
     ) {
         return new LogLine(timestamp, message, loglevel, className, thread, Type.STRUCTURED, lineNumber);
     }
 
-    public static LogLine unstructuredLogLine(String message, int lineNumber) {
+    public static LogLine createUnstructuredLogLine(String message, int lineNumber) {
         return new LogLine(null, message, null, null, null, Type.UNSTRUCTURED, lineNumber);
     }
 
