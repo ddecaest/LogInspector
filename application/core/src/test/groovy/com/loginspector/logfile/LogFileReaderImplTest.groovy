@@ -1,4 +1,4 @@
-package com.loginspector.process
+package com.loginspector.logfile
 
 import com.loginspector.logging.Logger
 import spock.lang.Specification

@@ -1,4 +1,4 @@
-package com.loginspector.process;
+package com.loginspector.logfile;
 
 import com.loginspector.logging.Logger;
 
@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class LogFileReaderImpl implements LogFileReader {
+public class LogFileReaderImpl implements LogFileReader {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS");
     private static final Pattern LOG_LINE_PATTERN;

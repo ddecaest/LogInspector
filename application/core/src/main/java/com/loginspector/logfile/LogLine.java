@@ -1,8 +1,8 @@
-package com.loginspector.process;
+package com.loginspector.logfile;
 
 import java.time.LocalDateTime;
 
-class LogLine {
+public class LogLine {
 
     private enum Type {
         STRUCTURED,

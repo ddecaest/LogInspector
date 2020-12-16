@@ -1,6 +1,6 @@
-package com.loginspector.process;
+package com.loginspector.logfile;
 
-enum LogLevel {
+public enum LogLevel {
     UNKNOWN,
     DEBUG,
     INFO,

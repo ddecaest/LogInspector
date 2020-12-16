@@ -1,6 +1,10 @@
-package com.loginspector.process;
+package com.loginspector.statistics.gather;
 
-import java.io.InputStream;
+import com.loginspector.logfile.LogLine;
+import com.loginspector.statistics.RenderingStatistics;
+import com.loginspector.statistics.RenderingStatistics.PendingStartRenderingRequest;
+import com.loginspector.statistics.RenderingStatistics.RenderingInfo;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class GatherStatisticsStrategyImpl implements GatherStatisticsStrategy {
+public class GatherStatisticsStrategyImpl implements GatherStatisticsStrategy<RenderingStatistics> {
 
     private static final Pattern START_RENDERING_MESSAGE_PATTERN = Pattern.compile("Executing request startRendering with arguments \\[(.*?),(.*?)]]");
     private static final Pattern RENDERING_UID_RETURNED_PATTERN = Pattern.compile("Service startRendering returned\s(.*)");
@@ -21,12 +25,12 @@ class GatherStatisticsStrategyImpl implements GatherStatisticsStrategy {
 
     @Override
     public void consume(LogLine logLine) {
-        if(!logLine.isStructuredLogLine()) {
+        if (!logLine.isStructuredLogLine()) {
             return;
         }
 
         Matcher startRenderingMatcher = START_RENDERING_MESSAGE_PATTERN.matcher(logLine.message);
-        if (startRenderingMatcher.find( )) {
+        if (startRenderingMatcher.find()) {
             final String documentId = startRenderingMatcher.group(1);
             final String page = startRenderingMatcher.group(2);
             handleStartRenderingRequest(logLine, documentId, page);
@@ -34,17 +38,16 @@ class GatherStatisticsStrategyImpl implements GatherStatisticsStrategy {
         }
 
         Matcher renderingUidReturnedMatcher = RENDERING_UID_RETURNED_PATTERN.matcher(logLine.message);
-        if (renderingUidReturnedMatcher.find( )) {
+        if (renderingUidReturnedMatcher.find()) {
             final String renderUid = renderingUidReturnedMatcher.group(1).trim();
             handleRenderingUidReturned(logLine, renderUid);
             return;
         }
 
         Matcher getRenderingMatcher = GET_RENDERING_PATTERN.matcher(logLine.message);
-        if (renderingUidReturnedMatcher.find( )) {
-            // TODO
-            handleGetRendering(renderingUidReturnedMatcher);
-            return;
+        if (renderingUidReturnedMatcher.find()) {
+            final String renderUid = getRenderingMatcher.group(1);
+            handleGetRendering(logLine.timestamp, renderUid);
         }
     }
 
@@ -55,14 +58,17 @@ class GatherStatisticsStrategyImpl implements GatherStatisticsStrategy {
 
     private void handleRenderingUidReturned(LogLine logLine, String renderUid) {
         Optional<PendingStartRenderingRequest> optionalMatchingPendingRequest = popMatchingPendingRequest(logLine.thread);
-        if(optionalMatchingPendingRequest.isEmpty()) {
+        if (optionalMatchingPendingRequest.isEmpty()) {
+            // TODO: log
             // The pending request was before the start of the log file, ignore it, as we do not have a start timestamp...
             return;
         }
         PendingStartRenderingRequest matchingPendingRequest = optionalMatchingPendingRequest.get();
 
-        var alreadyCompletedRenderingRequest = renderingInfos.stream().filter(it -> Objects.equals(it.renderUid, renderUid)).findAny();
-        if(alreadyCompletedRenderingRequest.isPresent()) {
+        var alreadyCompletedRenderingRequest = renderingInfos.stream()
+                .filter(it -> Objects.equals(it.renderUid, renderUid))
+                .findAny();
+        if (alreadyCompletedRenderingRequest.isPresent()) {
             RenderingInfo renderingInfo = alreadyCompletedRenderingRequest.get();
             renderingInfo.addStartRenderTimestamp(matchingPendingRequest.timestamp);
         } else {
@@ -73,62 +79,29 @@ class GatherStatisticsStrategyImpl implements GatherStatisticsStrategy {
 
     private Optional<PendingStartRenderingRequest> popMatchingPendingRequest(String thread) {
         Predicate<PendingStartRenderingRequest> findMatchingPendingRequest = it -> Objects.equals(it.thread, thread);
-        var matchingPendingRequest= pendingRequests.stream().filter(findMatchingPendingRequest).findAny();
+
+        var matchingPendingRequest = pendingRequests.stream()
+                .filter(findMatchingPendingRequest)
+                .findAny();
         pendingRequests.removeIf(findMatchingPendingRequest);
+
         return matchingPendingRequest;
     }
 
-    private void handleGetRendering(Matcher renderingUidReturnedMatcher) {
-        String commandUid = renderingUidReturnedMatcher.group(1);
-        // TODO: match with a startRendering.
-        // TODO: it is possible that no match is found...
+    private void handleGetRendering(LocalDateTime getRenderingTimestamp, String renderUid) {
+        Optional<RenderingInfo> matchingRenderInfo = renderingInfos.stream()
+                .filter(it -> Objects.equals(it.renderUid, renderUid))
+                .findAny();
+
+        matchingRenderInfo.ifPresent(it -> it.addGetRenderingTimestamp(getRenderingTimestamp));
+
+        if(matchingRenderInfo.isEmpty()) {
+            // TODO: it is possible that no match is found...
+        }
     }
 
     @Override
-    public InputStream getResultAsXml() {
-        // TODO
-        return null;
-    }
-
-
-    private static class PendingStartRenderingRequest {
-
-        public final LocalDateTime timestamp;
-        public final String documentId;
-        public final String thread;
-        public final String page;
-
-        public PendingStartRenderingRequest(String documentId, String thread, String page, LocalDateTime timestamp) {
-            this.documentId = documentId;
-            this.thread = thread;
-            this.page = page;
-            this.timestamp = timestamp;
-        }
-
-        public RenderingInfo updateWithRenderUid(String renderUid) {
-            return new RenderingInfo(documentId, thread, page, timestamp, renderUid);
-        }
-    }
-
-    private static class RenderingInfo {
-
-        public final String renderUid;
-        public final String documentId;
-        public final String thread;
-        public final String page;
-        public final List<LocalDateTime> startRenderTimestamps;
-
-        public RenderingInfo(String documentId, String thread, String page, LocalDateTime startRenderTimestamp, String renderUid) {
-            this.documentId = documentId;
-            this.thread = thread;
-            this.page = page;
-            this.renderUid = renderUid;
-            this.startRenderTimestamps = new ArrayList<>();
-            startRenderTimestamps.add(startRenderTimestamp);
-        }
-
-        public void addStartRenderTimestamp(LocalDateTime timestamp) {
-            startRenderTimestamps.add(timestamp);
-        }
+    public RenderingStatistics getResult() {
+        return new RenderingStatistics(renderingInfos);
     }
 }
