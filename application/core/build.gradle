@@ -1,13 +1,5 @@
-plugins {
-    id 'groovy'
-    id 'java'
-}
-
 group 'com.loginspector'
 version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.15
-targetCompatibility = 1.15
 
 repositories {
     mavenCentral()

@@ -1,4 +1,3 @@
 rootProject.name = 'log-inspector'
 
-include 'application:core'
-include 'application:terminal'
+include ('application:core', 'application:terminal')
