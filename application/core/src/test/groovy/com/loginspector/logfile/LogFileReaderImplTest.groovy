@@ -25,12 +25,51 @@ class LogFileReaderImplTest extends Specification {
         firstLine.loglevel == LogLevel.DEBUG
         firstLine.className == "DmsObjectDeterminator"
         firstLine.message == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
+        firstLine.lineNumber == 1
 
         when:
         def secondLine = logFile.readLine()
 
         then:
         secondLine.isEmpty()
+    }
+
+    def handlesTwoValidLines() {
+        given:
+        def content = "2010-10-06 09:11:51,360 [ThreadA] DEBUG [ClassA]: bla\n2010-10-07 10:12:51,360 [ThreadB] INFO [ClassB]: bla2"
+        def logFile = createReaderFromContent(content)
+
+        when:
+        def optionalFirstLine = logFile.readLine()
+
+        then:
+        optionalFirstLine.isPresent()
+        def firstLine = optionalFirstLine.get()
+        firstLine.timestamp == LocalDateTime.of(2010, 10, 6, 9, 11, 51, padNanos(360))
+        firstLine.thread == "ThreadA"
+        firstLine.loglevel == LogLevel.DEBUG
+        firstLine.className == "ClassA"
+        firstLine.message == "bla"
+        firstLine.lineNumber == 1
+
+        when:
+        def optionalSecondLine = logFile.readLine()
+
+        then:
+        optionalSecondLine.isPresent()
+        def secondLine = optionalSecondLine.get()
+        secondLine.timestamp == LocalDateTime.of(2010, 10, 7, 10, 12, 51, padNanos(360))
+        secondLine.thread == "ThreadB"
+        secondLine.loglevel == LogLevel.INFO
+        secondLine.className == "ClassB"
+        secondLine.message == "bla2"
+        secondLine.lineNumber == 2
+
+        when:
+        def thirdLine = logFile.readLine()
+
+        then:
+        thirdLine.isEmpty()
     }
 
     def handlesInvalidDate() {
@@ -51,6 +90,7 @@ class LogFileReaderImplTest extends Specification {
         firstLine.loglevel == LogLevel.DEBUG
         firstLine.className == "DmsObjectDeterminator"
         firstLine.message == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
+        firstLine.lineNumber == 1
 
         when:
         def secondLine = logFile.readLine()
@@ -77,6 +117,7 @@ class LogFileReaderImplTest extends Specification {
         firstLine.loglevel == LogLevel.UNKNOWN
         firstLine.className == "DmsObjectDeterminator"
         firstLine.message == "Object to encode for ObjectId { com.dn.dms.models.DocumentStatus - 19936 } (encoding depth = 1): null"
+        firstLine.lineNumber == 1
 
         when:
         def secondLine = logFile.readLine()

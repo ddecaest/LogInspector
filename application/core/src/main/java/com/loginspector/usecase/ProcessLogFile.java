@@ -4,26 +4,27 @@ import com.loginspector.logfile.LogFileReader;
 import com.loginspector.logfile.LogFileReaderImpl;
 import com.loginspector.logfile.LogLine;
 import com.loginspector.logging.LoggerFactory;
-import com.loginspector.statistics.write.WriteStastisticsStrategyRenderingStatisticsAsXml;
+import com.loginspector.statistics.write.WriteRenderStatisticsAsXmlStrategy;
 import com.loginspector.statistics.write.WriteStatisticsStrategy;
-import com.loginspector.statistics.RenderingStatistics;
+import com.loginspector.statistics.RenderStatistics;
 import com.loginspector.statistics.gather.GatherStatisticsStrategy;
-import com.loginspector.statistics.gather.GatherStatisticsStrategyImpl;
+import com.loginspector.statistics.gather.GatherRenderStatisticsStrategy;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class ProcessLogFile {
 
-    private static final ProcessLogFileFlow<RenderingStatistics> USE_CASE_FLOW = new ProcessLogFileFlow<>(
+    private static final ProcessLogFileFlow<RenderStatistics> USE_CASE_FLOW = new ProcessLogFileFlow<>(
             is -> new LogFileReaderImpl(is, LoggerFactory::createLogger),
-            new GatherStatisticsStrategyImpl(),
-            new WriteStastisticsStrategyRenderingStatisticsAsXml()
+            new GatherRenderStatisticsStrategy(LoggerFactory::createLogger),
+            new WriteRenderStatisticsAsXmlStrategy(LoggerFactory::createLogger)
     );
 
-    public static InputStream execute(InputStream inputStream) {
-        return USE_CASE_FLOW.execute(inputStream);
+    public static void execute(InputStream inputStream, OutputStream outputStream) {
+        USE_CASE_FLOW.execute(inputStream, outputStream);
     }
 
 
@@ -42,7 +43,7 @@ public abstract class ProcessLogFile {
             this.createLogFileReader = createLogFileReader;
         }
 
-        public InputStream execute(InputStream inputStream) {
+        public void execute(InputStream inputStream, OutputStream outputStream) {
             LogFileReader logFileReader = createLogFileReader.apply(inputStream);
 
             Optional<LogLine> logLine = logFileReader.readLine();
@@ -52,7 +53,7 @@ public abstract class ProcessLogFile {
             }
 
             T result = gatherStatisticsStrategy.getResult();
-            return writeStatisticsStrategy.writeStatistics(result);
+            writeStatisticsStrategy.writeStatistics(outputStream, result);
         }
     }
 }

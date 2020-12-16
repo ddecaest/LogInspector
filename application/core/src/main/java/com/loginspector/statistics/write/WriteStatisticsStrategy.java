@@ -1,8 +1,8 @@
 package com.loginspector.statistics.write;
 
-import java.io.InputStream;
+import java.io.OutputStream;
 
 public interface WriteStatisticsStrategy<T> {
 
-    InputStream writeStatistics(T statistics);
+    void writeStatistics(OutputStream outputStream, T statistics);
 }

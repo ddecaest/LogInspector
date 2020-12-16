@@ -4,7 +4,6 @@ import com.loginspector.logfile.LogFileReader
 import com.loginspector.logfile.LogLine
 import com.loginspector.statistics.gather.GatherStatisticsStrategy
 import com.loginspector.statistics.write.WriteStatisticsStrategy
-import com.loginspector.usecase.ProcessLogFile
 import spock.lang.Specification
 
 class ProcessLogFileTest extends Specification {
@@ -23,10 +22,10 @@ class ProcessLogFileTest extends Specification {
         def firstLine = generateLogLine()
         def secondLine = generateLogLine()
         def gatherResult = "een resultaat"
-        def writeResult = new ByteArrayInputStream("result".getBytes())
+        def outputStream = new ByteArrayOutputStream()
 
         when:
-        def actualResult = underTest.execute(new ByteArrayInputStream("test".getBytes()))
+        underTest.execute(new ByteArrayInputStream("test".getBytes()), outputStream)
 
         then: "consumes a log line"
         1 * logFileReaderUsed.readLine() >> Optional.of(firstLine)
@@ -37,12 +36,10 @@ class ProcessLogFileTest extends Specification {
         and: "runs out of lines, statistics strategy returns result"
         1 * logFileReaderUsed.readLine() >> Optional.empty()
         1 * gatherStatisticsStrategyUsed.getResult() >> gatherResult
-        1 * writeStatisticsStrategyUsed.writeStatistics(gatherResult) >> writeResult
-        and:
-        actualResult == writeResult
+        1 * writeStatisticsStrategyUsed.writeStatistics(outputStream, gatherResult)
     }
 
     private static LogLine generateLogLine() {
-        return LogLine.structuredLogLine(null, UUID.toString(), null, null, null)
+        return LogLine.unstructuredLogLine(UUID.randomUUID().toString(), -1)
     }
 }

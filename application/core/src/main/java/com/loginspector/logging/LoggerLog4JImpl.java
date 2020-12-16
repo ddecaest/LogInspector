@@ -25,6 +25,11 @@ class LoggerLog4JImpl implements Logger {
         delegate.warn(message);
     }
 
+    @Override
+    public void info(String message, Object... params) {
+        delegate.info(message, params);
+    }
+
     public void warn(String message, Object... params) {
         delegate.warn(message, params);
     }

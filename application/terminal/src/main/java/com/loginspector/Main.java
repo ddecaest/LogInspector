@@ -4,10 +4,7 @@ import com.loginspector.ArgumentParser.Arguments;
 import com.loginspector.usecase.ProcessLogFile;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 class Main {
 
@@ -17,9 +14,12 @@ class Main {
     }
 
     public static void execute(ArgumentParser.Arguments arguments) {
+
+        FileOutputStream fileOutputStream = new FileOutputStream(arguments.pathToOutputFile);
+
         try (InputStream in = new FileInputStream(arguments.pathToLogFile)) {
-            InputStream result = ProcessLogFile.execute(in);
-            writeResult(result, arguments.pathToOutputFile);
+            ProcessLogFile.execute(in, fileOutputStream);
+//            writeResult(result, arguments.pathToOutputFile);
         }
         catch (IOException e) {
             handleReadingError(e);

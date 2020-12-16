@@ -53,36 +53,36 @@ public class LogFileReaderImpl implements LogFileReader {
         try {
             line = reader.readLine();
         } catch (IOException e) {
-            logger.warn("An error occurred while reading in a log line.", e);
+            logger.error("An error occurred while reading in a log line.", e);
             return Optional.empty();
         }
         if(line == null) {
             return Optional.empty();
         }
-        return parse(line);
+        return parse(line, currentLine);
     }
 
-    private Optional<LogLine> parse(String line) {
+    private Optional<LogLine> parse(String line, int lineNumber) {
         Matcher matcher = LOG_LINE_PATTERN.matcher(line);
         if (matcher.find( )) {
-            return handleStandardLogLine(matcher);
+            return handleStandardLogLine(matcher, lineNumber);
         } else {
-            return handleUnstructuredLogLine(line);
+            return handleUnstructuredLogLine(line, lineNumber);
         }
     }
 
-    private Optional<LogLine> handleUnstructuredLogLine(String line) {
-        return Optional.of(LogLine.unstructuredLogLine(line));
+    private Optional<LogLine> handleUnstructuredLogLine(String line, int lineNumber) {
+        return Optional.of(LogLine.unstructuredLogLine(line, lineNumber));
     }
 
-    private Optional<LogLine> handleStandardLogLine(Matcher matcher) {
+    private Optional<LogLine> handleStandardLogLine(Matcher matcher, int lineNumber) {
         LocalDateTime localDateTime = parseLocalDateTime(matcher.group(1));
         String thread = matcher.group(2);
         LogLevel logLevel = parseLogLevel(matcher.group(3));
         String className = matcher.group(4);
         String message = matcher.group(5);
 
-        return Optional.of(LogLine.structuredLogLine(localDateTime, message, logLevel, className, thread));
+        return Optional.of(LogLine.structuredLogLine(localDateTime, message, logLevel, className, thread, lineNumber));
     }
 
     private LocalDateTime parseLocalDateTime(String rawLocalDateTime) {
