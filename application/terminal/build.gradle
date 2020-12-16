@@ -1,9 +1,8 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'java'
 }
 
-group 'com.loginspector'
+group 'com.loginspector.terminal'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -12,7 +11,6 @@ repositories {
 
 dependencies {
     implementation project(':application:core')
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
     testCompile("org.codehaus.groovy:groovy-all:2.4.15")
     testCompile("org.spockframework:spock-core:1.1-groovy-2.4")

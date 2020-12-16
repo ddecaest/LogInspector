@@ -1,4 +1,4 @@
-group 'com.loginspector'
+group 'com.loginspector.core'
 version '1.0-SNAPSHOT'
 
 repositories {
