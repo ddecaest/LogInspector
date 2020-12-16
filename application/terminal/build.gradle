@@ -17,9 +17,6 @@ dependencies {
     implementation project(':application:core')
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
-    testImplementation(
-            'junit:junit:4.12',
-            'org.codehaus.groovy:groovy-all:3.0.7',
-            'org.spockframework:spock-core:2.0-M4-groovy-3.0'
-    )
+    testCompile("org.codehaus.groovy:groovy-all:2.4.15")
+    testCompile("org.spockframework:spock-core:1.1-groovy-2.4")
 }
